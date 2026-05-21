@@ -37,7 +37,7 @@
             try {
                 grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400 font-medium animate-pulse">Fetching live database records...</div>';
                 
-                const response = await fetch('http://127.0.0.1:5000/api/donors');
+                const response = await fetch('/api/donors');
                 const donors = await response.json();
                 grid.innerHTML = ''; 
 

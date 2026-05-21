@@ -11,7 +11,7 @@ E-Blood Donation is a simple blood donation and emergency blood request web app 
 - MongoDB persistence
 - Human-readable activity logging in `donor_logs.txt`
 - Donor portal page
-- Real-time emergency broadcast support
+- Real-time emergency broadcast support for the local Node server
 
 ## Tech Stack
 
@@ -25,7 +25,9 @@ E-Blood Donation is a simple blood donation and emergency blood request web app 
 
 ## Project Files
 
-- `server.js` - Main backend server and API routes
+- `server.js` - Main local backend server and API routes
+- `app.js` - Shared Express app used by local server and Vercel API functions
+- `api/[...path].js` - Vercel serverless API entrypoint
 - `index.html` - Main landing page with donor and request forms
 - `portal.html` - Donor portal page
 - `donor_logs.txt` - Activity log file
@@ -59,6 +61,21 @@ E-Blood Donation is a simple blood donation and emergency blood request web app 
 - `POST /api/emergencies` - Submit an emergency blood request
 - `POST /api/login` - Generate an admin token
 - `GET /api/seed` - Insert sample donor data into MongoDB
+
+## Vercel Deployment
+
+This project is ready to deploy on Vercel as a static front end with serverless API routes.
+
+You must set these environment variables in Vercel:
+
+- `MONGODB_URI` - MongoDB Atlas connection string
+- `JWT_SECRET` - Secret used to sign the login token
+
+Important notes:
+
+- Vercel cannot use the local MongoDB instance from your laptop.
+- The deployed app must use MongoDB Atlas or another hosted MongoDB service.
+- Socket.IO real-time notifications work in the local Node server, but Vercel serverless functions do not keep a long-running socket server.
 
 ## Notes
 

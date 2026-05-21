@@ -177,8 +177,11 @@
             return null;
         }
 
-        const socket = io('http://127.0.0.1:5000');
-        socket.on('new_emergency', (data) => alert(`🚨 URGENT: Blood Group ${data.requiredGroup} needed at ${data.hospitalName}! Urgency: ${data.urgency}`));
+        const isLocalDev = ['localhost', '127.0.0.1'].includes(window.location.hostname) && window.location.port === '5000';
+        const socket = isLocalDev ? io(window.location.origin) : null;
+        if (socket) {
+            socket.on('new_emergency', (data) => alert(`🚨 URGENT: Blood Group ${data.requiredGroup} needed at ${data.hospitalName}! Urgency: ${data.urgency}`));
+        }
 
         async function registerDonor() {
             // Added donorPhone here
@@ -203,7 +206,7 @@
             }
 
             try {
-                const res = await fetch('http://127.0.0.1:5000/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                 const responseData = await res.json().catch(() => ({}));
                 if (!res.ok) {
                     const field = responseData?.error?.field || 'donorEmail';
@@ -241,16 +244,23 @@
             }
 
             try {
-                const loginRes = await fetch('http://127.0.0.1:5000/api/login', { method: 'POST' });
+                const loginRes = await fetch('/api/login', { method: 'POST' });
                 const { token } = await loginRes.json();
-                const res = await fetch('http://127.0.0.1:5000/api/emergencies', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token }, body: JSON.stringify(data) });
+                const res = await fetch('/api/emergencies', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': token }, body: JSON.stringify(data) });
                 const responseData = await res.json().catch(() => ({}));
                 if (!res.ok) {
                     const field = responseData?.error?.field || 'reqHospital';
                     const message = responseData?.error?.message || 'Emergency request failed.';
                     setFieldError(field, message);
                     document.getElementById(field)?.focus();
+                    return;
                 }
+                alert('Emergency request submitted successfully!');
+                clearValidationErrors();
+                document.getElementById('reqHospital').value = '';
+                document.getElementById('reqGroup').value = '';
+                document.getElementById('reqUrgency').value = 'Critical';
+                document.getElementById('reqLocation').value = '';
             } catch (err) {
                 setFieldError('reqHospital', 'Backend offline. Ensure server.js is running!');
             }
